@@ -1,0 +1,16 @@
+// =====================================================
+// GPT-ERP Prisma Schema - Phase 0 stub
+// Schema lengkap akan di-generate di Phase 2
+// =====================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Phase 0: kosong. Phase 2 akan menambah semua model.
+// (Company, Division, User, Account, FinancialTransaction, dll)
