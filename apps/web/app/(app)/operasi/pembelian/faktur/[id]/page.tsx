@@ -1,5 +1,6 @@
 import { TxForm } from "@/components/transaction/TxForm";
 import { ApprovalActions } from "@/components/transaction/ApprovalActions";
+import { ExportPdfButton } from "@/components/transaction/ExportPdfButton";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth-server";
 import { getTransaction } from "@/server/services/transaction.service";
@@ -37,6 +38,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     }),
   ]);
 
+  const pdfCompany = await prisma.company.findUnique({ where: { id: user.companyId }, select: { name: true, code: true } });
   const isOwner = tx.createdById === user.id;
   const showActions = isOwner || (user.role === tx.currentRole) || user.role === "ADMIN" || user.role === "MANAGER" || user.role === "DIREKTUR";
 
@@ -64,6 +66,32 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <p className={styles.subtitle}>{tx.description}</p>
         </div>
         <div className={styles.meta}>
+          <ExportPdfButton
+            company={{
+              name: pdfCompany?.name ?? user.companyCode,
+              code: pdfCompany?.code ?? user.companyCode,
+            }}
+            party={{
+              label: "Vendor",
+              name: tx.vendorName ?? "Vendor",
+              code: tx.vendorCode ?? undefined,
+            }}
+            doc={{
+              title: "FAKTUR PEMBELIAN",
+              code: tx.code,
+              date: new Date(tx.date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }),
+              description: tx.description,
+              status: tx.approvalStatus,
+              notes: (tx as any).metadata?.notes,
+              items: tx.items,
+              hasPPN: tx.hasPPN,
+              subtotal: ((tx as any).metadata?.subtotal ?? tx.amount) as number,
+              ppn: ((tx as any).metadata?.ppn ?? 0) as number,
+              total: tx.amount,
+              projectName: tx.projectName ?? undefined,
+              refCode: tx.refCode ?? undefined,
+            }}
+          />
           <div><span>Tanggal</span><strong>{formatDate(tx.date)}</strong></div>
           <div><span>Total</span><strong>{formatIDR(tx.amount)}</strong></div>
         </div>
