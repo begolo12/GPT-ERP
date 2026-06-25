@@ -1,0 +1,14 @@
+
+.timeline { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.timelineItem { display: flex; gap: var(--space-3); position: relative; }
+.timelineDot { width: 12px; height: 12px; border-radius: 50%; background: var(--text-muted); margin-top: 4px; flex-shrink: 0; }
+.timelineDot[data-status="submitted"] { background: var(--status-submitted); }
+.timelineDot[data-status="approved"] { background: var(--status-approved); }
+.timelineDot[data-status="rejected"] { background: var(--status-rejected); }
+.timelineDot[data-status="revised"] { background: var(--status-revised); }
+
+.timelineContent { flex: 1; }
+.timelineHeader { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+.timelineActor { color: var(--text-muted); font-size: 12px; }
+.timelineTime { color: var(--text-subtle); font-size: 11px; margin-left: auto; }
+.timelineNote { margin: 4px 0 0; padding: var(--space-2); background: var(--surface-2); border-radius: var(--radius); font-size: 12px; color: var(--text-muted); }

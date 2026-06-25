@@ -19,6 +19,7 @@ export interface TransactionWithChain {
   description: string;
   amount: number;
   approvalStatus: ApprovalStatus;
+  currentRole: string | null;
   vendorCode: string | null;
   vendorName: string | null;
   projectCode: string | null;
@@ -29,6 +30,7 @@ export interface TransactionWithChain {
   refId: string | null;
   refCode: string | null;
   parentId: string | null;
+  createdById: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +46,7 @@ function formatTx(tx: any): TransactionWithChain {
     description: tx.description,
     amount: Number(tx.amount),
     approvalStatus: tx.approvalStatus,
+    currentRole: tx.currentRole ?? null,
     vendorCode: meta.vendorCode ?? null,
     vendorName: meta.vendorName ?? null,
     projectCode: tx.projectCode ?? null,
@@ -54,6 +57,7 @@ function formatTx(tx: any): TransactionWithChain {
     refId: tx.refId ?? null,
     refCode: meta.refCode ?? null,
     parentId: tx.parentId ?? null,
+    createdById: tx.createdById,
     createdAt: tx.createdAt.toISOString(),
     updatedAt: tx.updatedAt.toISOString(),
   };
