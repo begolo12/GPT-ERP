@@ -1,0 +1,18 @@
+.page { display: flex; flex-direction: column; gap: var(--space-4); }
+.header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.title { margin: 0; font-size: 24px; font-weight: 700; }
+.subtitle { margin: 4px 0 0; color: var(--text-muted); font-size: 14px; }
+
+.filters { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: flex-end; }
+.filterField { display: flex; flex-direction: column; gap: 2px; }
+.filterField label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600; }
+.filterField input, .filterField select { padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius); font-size: 12px; background: var(--surface); color: var(--text); font-family: inherit; min-width: 120px; }
+
+.summary { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+@media (max-width: 1024px) { .summary { grid-template-columns: 1fr; } }
+
+.empty { padding: var(--space-6); text-align: center; color: var(--text-muted); font-size: 13px; margin: 0; }
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: left; padding: var(--space-2) var(--space-3); background: var(--surface-2); color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+.table td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); }
