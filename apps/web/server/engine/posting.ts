@@ -124,6 +124,25 @@ export function generatePosting(
       if (Array.isArray(meta.lines)) return meta.lines;
       return [];
 
+
+    case "QUOTATION":
+      // Penawaran Harga: belum ada jurnal
+      return [];
+
+    case "SO":
+      // Sales Order: belum ada jurnal (di-posting saat Faktur)
+      return [];
+
+    case "SURAT_JALAN":
+      // Surat Jalan: tidak ada jurnal
+      return [];
+
+    case "PIUTANG":
+      // Penerimaan piutang: Kas/Bank (+) / Piutang Penjualan (-)
+      return [
+        { accountCode: kasBankCode, debit: amount, credit: 0, description: "Penerimaan piutang" },
+        { accountCode: "11214", debit: 0, credit: amount, description: "Piutang pelanggan" },
+      ];
     default:
       // Doc type yang belum ada posting rule: skip
       return [];

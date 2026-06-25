@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
@@ -23,7 +23,7 @@ interface TxItem {
 }
 
 interface TxListProps {
-  type: "PR" | "PO" | "DO" | "GR" | "FAKTUR";
+  type: "PR" | "PO" | "DO" | "GR" | "FAKTUR" | "QUOTATION" | "SO" | "SURAT_JALAN";
   title: string;
   subtitle: string;
   createHref: string;

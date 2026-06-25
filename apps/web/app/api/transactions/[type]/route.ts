@@ -4,7 +4,7 @@ import { requireSession } from "@/lib/auth-server";
 import { listTransactions, createTransaction } from "@/server/services/transaction.service";
 import { lineItemSchema, transactionBaseSchema } from "@/lib/schemas/transaction";
 
-const VALID_TYPES: DocType[] = ["PR", "PO", "DO", "GR", "FAKTUR"];
+const VALID_TYPES: DocType[] = ["PR", "PO", "DO", "GR", "FAKTUR", "QUOTATION", "SO", "SURAT_JALAN"];
 
 function parseType(t: string): DocType | null {
   return VALID_TYPES.includes(t as DocType) ? (t as DocType) : null;

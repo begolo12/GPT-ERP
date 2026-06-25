@@ -7,7 +7,7 @@ import {
   deleteTransaction,
 } from "@/server/services/transaction.service";
 
-const VALID_TYPES: DocType[] = ["PR", "PO", "DO", "GR", "FAKTUR"];
+const VALID_TYPES: DocType[] = ["PR", "PO", "DO", "GR", "FAKTUR", "QUOTATION", "SO", "SURAT_JALAN"];
 
 function parseType(t: string): DocType | null {
   return VALID_TYPES.includes(t as DocType) ? (t as DocType) : null;

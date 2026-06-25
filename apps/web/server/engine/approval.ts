@@ -28,7 +28,11 @@ export const APPROVAL_RULES: Record<string, ApprovalRule> = {
   PERAWATAN_KENDARAAN: { minRole: "SPV", escalateAbove: 10_000_000, escalateTo: "MANAGER" },
   PENGGAJIAN: { minRole: "DIREKTUR" },
   REIMBURSE: { minRole: "SPV" },
-  PELUNASAN: { minRole: "SPV" },
+  PELUNASAN: { minRole: 'SPV' },
+  QUOTATION: { minRole: 'SPV' },
+  SO: { minRole: 'MANAGER', escalateAbove: 100000000, escalateTo: 'DIREKTUR' },
+  SURAT_JALAN: { minRole: 'SPV' },
+  PIUTANG: { minRole: 'MANAGER' },
 };
 
 const ROLE_RANK: Record<string, number> = {
