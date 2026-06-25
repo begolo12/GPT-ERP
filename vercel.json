@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/web && pnpm prisma generate && pnpm next build",
+  "installCommand": "",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next",
+  "regions": ["sin1"]
+}
