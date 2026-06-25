@@ -30,6 +30,14 @@
   z-index: 25;
 }
 
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 768px) {
   .main, .main[data-sidebar-collapsed="true"] {
     margin-left: 0;

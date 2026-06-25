@@ -6,7 +6,8 @@ const nextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  // Allow @shared package resolution
+  // Native modules yang tidak bisa di-bundle webpack
+  serverExternalPackages: ["argon2", "@prisma/client", "prisma"],
   transpilePackages: ["@gpt-erp/shared"],
 };
 

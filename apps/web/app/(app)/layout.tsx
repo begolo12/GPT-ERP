@@ -1,19 +1,42 @@
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/auth-server";
 
-// Stub data (Phase 3: ambil dari session)
-const STUB_USER = { name: "Admin", email: "admin@gpt-erp.local", role: "ADMIN" };
-const STUB_COMPANIES = [
-  { id: "group", code: "GROUP", name: "Konsolidasi Group" },
-  { id: "gas", code: "GAS", name: "PT. Ganendra Arsyila Semesta" },
-  { id: "djp", code: "DJP", name: "PT. Daniswara Jaya Perkasa" },
-];
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+  // Fetch all companies for switcher
+  const companies = await prisma.company.findMany({
+    select: { id: true, code: true, name: true },
+    orderBy: { code: "asc" },
+  });
+
+  // For now: only show companies the user has access to
+  // Phase 8: ADMIN/GROUP role gets all, others only own
+  const userCompany = companies.find((c) => c.id === user.companyId);
+  const availableCompanies = userCompany ? [userCompany] : [];
+
+  // Map to Topbar shape
+  const currentCompany = {
+    id: user.companyId,
+    code: user.companyCode,
+    name: userCompany?.name ?? user.companyCode,
+    isGroup: user.companyCode === "GROUP",
+  };
+
   return (
     <AppShell
-      user={STUB_USER}
-      currentCompany={STUB_COMPANIES[0]}
-      availableCompanies={STUB_COMPANIES}
+      user={{
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        divisionCode: user.divisionCode,
+      }}
+      currentCompany={currentCompany}
+      availableCompanies={availableCompanies}
     >
       {children}
     </AppShell>

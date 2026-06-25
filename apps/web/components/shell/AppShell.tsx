@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import * as Icons from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import styles from "./AppShell.module.css";
@@ -14,12 +17,21 @@ interface AppShellProps {
     isGroup?: boolean;
   };
   availableCompanies: { id: string; code: string; name: string }[];
-  user: { name: string; email: string; role: string };
+  user: { id: string; name: string; email: string; role: string; divisionCode: string | null };
 }
 
 export function AppShell({ children, currentCompany, availableCompanies, user }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await signOut({ redirect: false });
+      router.push("/login");
+    });
+  };
 
   return (
     <div className={styles.shell}>
@@ -38,10 +50,9 @@ export function AppShell({ children, currentCompany, availableCompanies, user }:
           availableCompanies={availableCompanies}
           user={user}
           onMobileMenuToggle={() => setMobileOpen(!mobileOpen)}
-          onCompanyChange={(id) => {
-            // Phase 3: switch company via cookie/refresh
-            // For now, reload with query param
-            window.location.href = `?company=${id}`;
+          onCompanyChange={() => {
+            // Phase 8: real company switching
+            router.refresh();
           }}
         />
         <main id="main-content" className={styles.content}>

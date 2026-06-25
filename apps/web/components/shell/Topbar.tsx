@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import * as Icons from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useTheme, type Theme } from "@/lib/theme";
@@ -19,7 +21,7 @@ interface CurrentCompany extends Company {
 interface TopbarProps {
   currentCompany: CurrentCompany;
   availableCompanies: Company[];
-  user: { name: string; email: string; role: string };
+  user: { id: string; name: string; email: string; role: string };
   onMobileMenuToggle: () => void;
   onCompanyChange: (companyId: string) => void;
 }
@@ -41,6 +43,8 @@ export function Topbar({
   const [companyOpen, setCompanyOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   useEffect(() => {
     const handleClick = () => {
@@ -51,6 +55,14 @@ export function Topbar({
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await signOut({ redirect: false });
+      router.push("/login");
+      router.refresh();
+    });
+  };
 
   return (
     <header className={styles.topbar}>
@@ -64,7 +76,6 @@ export function Topbar({
           <Icons.Menu size={20} />
         </button>
 
-        {/* Company switcher */}
         <div className={styles.dropdown}>
           <button
             type="button"
@@ -109,7 +120,6 @@ export function Topbar({
       </div>
 
       <div className={styles.right}>
-        {/* Theme switcher */}
         <div className={styles.dropdown}>
           <button
             type="button"
@@ -150,12 +160,10 @@ export function Topbar({
           )}
         </div>
 
-        {/* Notifications (stub) */}
         <button type="button" className={styles.iconBtn} aria-label="Notifications">
           <Icons.Bell size={18} />
         </button>
 
-        {/* User menu */}
         <div className={styles.dropdown}>
           <button
             type="button"
@@ -177,14 +185,15 @@ export function Topbar({
           {userOpen && (
             <div className={styles.menu} onClick={(e) => e.stopPropagation()}>
               <div className={styles.menuHeader}>{user.email}</div>
-              <button type="button" className={styles.menuItem}>
-                <Icons.User size={14} />
-                <span>Profil</span>
-              </button>
               <div className={styles.divider} />
-              <button type="button" className={cn(styles.menuItem, styles.menuItemDanger)}>
-                <Icons.LogOut size={14} />
-                <span>Keluar</span>
+              <button
+                type="button"
+                className={cn(styles.menuItem, styles.menuItemDanger)}
+                onClick={handleLogout}
+                disabled={isPending}
+              >
+                {isPending ? <Icons.Loader2 size={14} className={styles.spin} /> : <Icons.LogOut size={14} />}
+                <span>{isPending ? "Keluar\u2026" : "Keluar"}</span>
               </button>
             </div>
           )}
