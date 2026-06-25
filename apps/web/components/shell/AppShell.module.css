@@ -1,0 +1,40 @@
+.shell {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.main {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left var(--transition);
+}
+
+.main[data-sidebar-collapsed="true"] {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-6);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 25;
+}
+
+@media (max-width: 768px) {
+  .main, .main[data-sidebar-collapsed="true"] {
+    margin-left: 0;
+  }
+  .backdrop[data-open="true"] {
+    display: block;
+  }
+}

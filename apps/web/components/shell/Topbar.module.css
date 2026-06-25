@@ -1,0 +1,230 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--topbar-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  gap: var(--space-3);
+}
+
+.left, .right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.iconBtn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.companyBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text);
+  font-family: inherit;
+  min-width: 0;
+}
+.companyBtn:hover {
+  border-color: var(--border-strong);
+}
+
+.companyGroup {
+  background: linear-gradient(135deg, var(--brand-navy) 0%, #1e293b 100%);
+  color: var(--text-inverse);
+  border-color: var(--brand-navy);
+}
+
+.companyInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.companyName {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.companyCode {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.companyGroup .companyCode {
+  color: var(--brand-amber);
+  opacity: 0.8;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1);
+  z-index: 50;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.menuHeader {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  padding: var(--space-2) var(--space-3);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.menuItem:hover {
+  background: var(--surface-2);
+}
+
+.menuItemActive {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+
+.menuItemTitle {
+  font-weight: 500;
+}
+
+.menuItemSub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.menuItemDanger {
+  color: var(--status-rejected);
+}
+.menuItemDanger:hover {
+  background: var(--status-rejected-bg);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: var(--space-1) 0;
+}
+
+.mlAuto {
+  margin-left: auto;
+}
+
+.userBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text);
+  font-family: inherit;
+}
+.userBtn:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--brand-amber);
+  color: var(--brand-navy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.userRole {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 640px) {
+  .userInfo {
+    display: none;
+  }
+  .companyName {
+    max-width: 120px;
+  }
+}

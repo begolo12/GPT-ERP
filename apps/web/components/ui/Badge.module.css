@@ -1,0 +1,19 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.v_draft      { background: var(--status-draft-bg);     color: var(--status-draft); }
+.v_submitted  { background: var(--status-submitted-bg); color: var(--status-submitted); }
+.v_reviewed   { background: var(--status-reviewed-bg);  color: var(--status-reviewed); }
+.v_approved   { background: var(--status-approved-bg);  color: var(--status-approved); }
+.v_rejected   { background: var(--status-rejected-bg);  color: var(--status-rejected); }
+.v_revised    { background: var(--status-revised-bg);   color: var(--status-revised); }
+.v_neutral    { background: var(--surface-2);           color: var(--text-muted); }
