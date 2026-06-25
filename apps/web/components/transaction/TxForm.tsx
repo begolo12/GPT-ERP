@@ -38,7 +38,7 @@ export interface RefOption {
 }
 
 export interface TxFormProps {
-  type: "PR" | "PO" | "DO" | "GR" | "FAKTUR" | "QUOTATION" | "SO" | "SURAT_JALAN";
+  type: "PR" | "PO" | "DO" | "GR" | "FAKTUR" | "QUOTATION" | "SO" | "SURAT_JALAN" | "PEMBAYARAN" | "JURNAL_MEMORIAL" | "HUTANG" | "PENGADAAN_GA" | "PERAWATAN_KENDARAAN" | "PENGGAJIAN";
   title: string;
   initial?: TxFormInitial;
   vendors: { code: string; name: string }[];

@@ -23,7 +23,7 @@ interface TxItem {
 }
 
 interface TxListProps {
-  type: "PR" | "PO" | "DO" | "GR" | "FAKTUR" | "QUOTATION" | "SO" | "SURAT_JALAN";
+  type: "PR" | "PO" | "DO" | "GR" | "FAKTUR" | "QUOTATION" | "SO" | "SURAT_JALAN" | "PEMBAYARAN" | "JURNAL_MEMORIAL" | "HUTANG" | "PENGADAAN_GA" | "PERAWATAN_KENDARAAN" | "PENGGAJIAN";
   title: string;
   subtitle: string;
   createHref: string;
