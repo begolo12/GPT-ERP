@@ -1,10 +1,11 @@
 // =====================================================
-// GPT-ERP Prisma Schema - Phase 0 stub
-// Schema lengkap akan di-generate di Phase 2
+// GPT-ERP Prisma Schema
+// Multi-company ERP untuk Daniswara Group
 // =====================================================
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -12,5 +13,354 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Phase 0: kosong. Phase 2 akan menambah semua model.
-// (Company, Division, User, Account, FinancialTransaction, dll)
+// =====================================================
+// ENUMS
+// =====================================================
+
+enum ApprovalStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+  APPROVED
+  REJECTED
+  REVISED
+  CANCELLED
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum UserRole {
+  ADMIN
+  FINANCE
+  OP
+  GA
+  HR
+  SPV
+  MANAGER
+  DIREKTUR
+}
+
+enum DivisionCode {
+  OP
+  FN
+  GA
+  HR
+}
+
+enum DocType {
+  PR
+  PO
+  DO
+  GR
+  QUOTATION
+  SO
+  SURAT_JALAN
+  FAKTUR
+  PIUTANG
+  PEMBAYARAN
+  PELUNASAN
+  JURNAL_MEMORIAL
+  BEBAN
+  HUTANG
+  REIMBURSE
+  PERMINTAAN_BAYAR
+  PERMINTAAN_BIAYA_OP
+  RENCANA_BIAYA
+  PENGAJUAN_OPERASIONAL
+  PENGADAAN_GA
+  PENGADAAN_ATK
+  PERAWATAN_ASET
+  PERAWATAN_KENDARAAN
+  PERIZINAN
+  PENGELUARAN_GA
+  REKRUTMEN
+  INPUT_KANDIDAT
+  PANGGILAN_HR
+  FOLLOW_UP_KANDIDAT
+  ONBOARDING
+  WAWANCARA
+  PENGGAJIAN
+  ABSENSI
+  CUTI
+  REALISASI_BIAYA
+  REALISASI_PEMBELIAN
+  ANGGARAN
+}
+
+enum NotificationType {
+  APPROVAL
+  ROUTING
+  STATUS
+  INFO
+}
+
+enum ApprovalAction {
+  SEND
+  APPROVE
+  REJECT
+  REVISE
+}
+
+enum ItemStatus {
+  AKTIF
+  NONAKTIF
+}
+
+// =====================================================
+// MODELS
+// =====================================================
+
+model Company {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  transactions   FinancialTransaction[]
+  journalLines   JournalLine[]
+  notifications  Notification[]
+  masterItems    MasterDataItem[]
+
+  @@index([code])
+}
+
+model Division {
+  id        String   @id @default(cuid())
+  code      DivisionCode @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  users   User[]
+  finTransactions FinancialTransaction[]
+
+  @@index([code])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  role         UserRole
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  divisionId   String?
+  division     Division? @relation(fields: [divisionId], references: [id], onDelete: SetNull)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens    RefreshToken[]
+  finTransactions  FinancialTransaction[] @relation("CreatedBy")
+  finUpdated       FinancialTransaction[] @relation("UpdatedBy")
+  approvalSteps    ApprovalStep[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+
+  @@index([role])
+  @@index([companyId])
+  @@index([divisionId])
+  @@index([companyId, role])
+}
+
+model Account {
+  id        String      @id @default(cuid())
+  code      String      @unique
+  name      String
+  type      AccountType
+  parentId  String?
+  parent    Account?    @relation("AccountTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Account[]   @relation("AccountTree")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  journalLines JournalLine[]
+
+  @@index([type])
+  @@index([code, type])
+  @@index([parentId])
+}
+
+model FinancialTransaction {
+  id            String         @id @default(cuid())
+  companyId     String
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  divisionCode  DivisionCode
+  division      Division       @relation(fields: [divisionCode], references: [code])
+  projectCode   String?
+  date          DateTime
+  period        String
+  type          DocType
+  description   String
+  amount        Decimal        @db.Decimal(18, 2)
+  approvalStatus ApprovalStatus @default(DRAFT)
+  parentId      String?
+  parent        FinancialTransaction?  @relation("DocChain", fields: [parentId], references: [id], onDelete: SetNull)
+  children      FinancialTransaction[] @relation("DocChain")
+  currentRole   String?
+  kasBankCode   String?
+  employeeCode  String?
+  assetCode     String?
+  accountCode   String?
+  attachments   Json?
+  metadata      Json?
+  refType       String?
+  refId         String?
+  createdById   String
+  createdBy     User           @relation("CreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedById   String?
+  updatedBy     User?          @relation("UpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  approvalSteps   ApprovalStep[]
+  journalLines    JournalLine[]
+  notifications   Notification[]
+
+  @@index([companyId, type, period])
+  @@index([companyId, type, date])
+  @@index([companyId, approvalStatus, date])
+  @@index([type, approvalStatus, date])
+  @@index([divisionCode, type, date])
+  @@index([projectCode, type, date])
+  @@index([parentId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([deletedAt])
+  @@index([date])
+  @@index([period])
+  @@index([companyId, divisionCode, type, date])
+  @@index([companyId, type, approvalStatus, period])
+  @@index([companyId, projectCode, type, date])
+  @@index([companyId, type, date, deletedAt])
+  @@index([type, parentId])
+  @@index([currentRole, approvalStatus])
+  @@index([refType, refId])
+  @@index([companyId, kasBankCode, date])
+  @@index([companyId, employeeCode, date])
+  @@index([companyId, assetCode, date])
+  @@index([companyId, accountCode, date])
+}
+
+model ApprovalStep {
+  id            String         @id @default(cuid())
+  transactionId String
+  transaction   FinancialTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  fromRole      String
+  toRole        String
+  action        ApprovalAction
+  actorId       String?
+  actor         User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actorName     String
+  note          String?
+  status        ApprovalStatus
+  createdAt     DateTime       @default(now())
+
+  @@index([transactionId])
+  @@index([fromRole])
+  @@index([toRole])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Notification {
+  id              String         @id @default(cuid())
+  recipientRole   String?
+  recipientUserId String?
+  recipientUser   User?          @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  divisionCode    DivisionCode?
+  transactionId   String?
+  transaction     FinancialTransaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  type            NotificationType
+  title           String
+  message         String
+  read            Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+
+  @@index([recipientUserId, read, createdAt])
+  @@index([recipientRole, companyId, read])
+  @@index([companyId, createdAt])
+  @@index([transactionId])
+}
+
+model JournalLine {
+  id            String         @id @default(cuid())
+  transactionId String
+  transaction   FinancialTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  companyId     String
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  accountId     String
+  account       Account        @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  debit         Decimal        @default(0) @db.Decimal(18, 2)
+  credit        Decimal        @default(0) @db.Decimal(18, 2)
+  description   String?
+  createdAt     DateTime       @default(now())
+
+  @@index([transactionId])
+  @@index([companyId, accountId, createdAt])
+  @@index([accountId, createdAt])
+}
+
+model MasterDataItem {
+  id        String      @id @default(cuid())
+  companyId String?
+  company   Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  category  String
+  code      String
+  name      String
+  status    ItemStatus  @default(AKTIF)
+  metadata  Json?
+  search    Unsupported("tsvector")?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([companyId, category, code])
+  @@index([category])
+  @@index([category, status])
+  @@index([companyId, category, status])
+  @@index([name])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName     String
+  action       String
+  resourceType String
+  resourceId   String?
+  oldValue     Json?
+  newValue     Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+}
