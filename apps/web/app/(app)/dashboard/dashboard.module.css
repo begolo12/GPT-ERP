@@ -10,3 +10,9 @@
 
 .emptyMini { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-8); color: var(--text-subtle); gap: var(--space-2); text-align: center; font-size: 13px; }
 .emptyMini p { margin: 0; }
+
+.companyList { display: flex; flex-direction: column; gap: var(--space-2); }
+.companyItem { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3); background: var(--surface-2); border-radius: var(--radius); }
+.companyName { font-weight: 600; font-size: 13px; color: var(--text); }
+.companyCode { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.companyAmount { font-family: var(--font-mono); font-weight: 700; font-size: 14px; color: var(--text); }

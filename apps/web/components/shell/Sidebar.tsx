@@ -5,12 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Icons from "lucide-react";
 import { NAV_SECTIONS, SECTION_COLORS, type NavItem } from "@/lib/nav";
+import { filterNav } from "@/lib/nav-filter";
 import { cn } from "@/lib/cn";
 import styles from "./Sidebar.module.css";
 
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  isKonsolidasi?: boolean;
+  userRole?: string;
 }
 
 function NavItemRow({ item, collapsed, depth = 0 }: { item: NavItem; collapsed: boolean; depth?: number }) {
@@ -63,7 +66,9 @@ function NavItemRow({ item, collapsed, depth = 0 }: { item: NavItem; collapsed: 
   );
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, isKonsolidasi = false, userRole = "STAFF" }: SidebarProps) {
+  const sections = filterNav({ isKonsolidasi, userRole });
+
   return (
     <aside className={cn(styles.sidebar, collapsed && styles.collapsed)} aria-label="Main navigation">
       <div className={styles.brand}>
@@ -71,13 +76,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         {!collapsed && (
           <div className={styles.brandText}>
             <div className={styles.brandName}>GPT-ERP</div>
-            <div className={styles.brandSub}>Daniswara Group</div>
+            <div className={styles.brandSub}>{isKonsolidasi ? "Konsolidasi" : "Daniswara Group"}</div>
           </div>
         )}
       </div>
 
       <nav className={styles.nav}>
-        {NAV_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <div key={section.key} className={styles.section}>
             {!collapsed && <div className={styles.sectionLabel}>{section.label}</div>}
             <div className={styles.items}>

@@ -53,7 +53,19 @@ export function Topbar({
       setThemeOpen(false);
     };
     document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    const handleSwitchCompany = (companyId: string) => {
+    startTransition(async () => {
+      const res = await fetch("/api/company/switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyId }),
+      });
+      if (res.ok) router.refresh();
+      setCompanyOpen(false);
+    });
+  };
+
+  return () => document.removeEventListener("click", handleClick);
   }, []);
 
   const handleLogout = () => {
@@ -61,6 +73,18 @@ export function Topbar({
       await signOut({ redirect: false });
       router.push("/login");
       router.refresh();
+    });
+  };
+
+  const handleSwitchCompany = (companyId: string) => {
+    startTransition(async () => {
+      const res = await fetch("/api/company/switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyId }),
+      });
+      if (res.ok) router.refresh();
+      setCompanyOpen(false);
     });
   };
 
@@ -103,7 +127,7 @@ export function Topbar({
                   type="button"
                   className={cn(styles.menuItem, c.id === currentCompany.id && styles.menuItemActive)}
                   onClick={() => {
-                    onCompanyChange(c.id);
+                    handleSwitchCompany(c.id);
                     setCompanyOpen(false);
                   }}
                 >
@@ -140,7 +164,19 @@ export function Topbar({
             <div className={styles.menu} onClick={(e) => e.stopPropagation()}>
               {THEME_OPTIONS.map((opt) => {
                 const Icon = (Icons as any)[opt.icon];
-                return (
+                const handleSwitchCompany = (companyId: string) => {
+    startTransition(async () => {
+      const res = await fetch("/api/company/switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyId }),
+      });
+      if (res.ok) router.refresh();
+      setCompanyOpen(false);
+    });
+  };
+
+  return (
                   <button
                     key={opt.value}
                     type="button"

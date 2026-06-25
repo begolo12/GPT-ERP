@@ -1,10 +1,12 @@
 import * as Icons from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth-server";
+import { getCompanyContext } from "@/lib/company";
 import { getDashboardKpi } from "@/server/services/report.service";
+import { getConsolidatedKpi } from "@/server/services/consolidation.service";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/StatCard";
-import { formatIDR, formatDateTime, formatNumber } from "@/lib/format";
+import { formatIDR, formatDateTime } from "@/lib/format";
 import { MonthlyTrendChart, TopVendorsChart, TopProductsChart } from "@/components/report/Charts";
 import styles from "./dashboard.module.css";
 
@@ -12,16 +14,24 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const user = await requireSession();
-  const kpi = await getDashboardKpi(user);
-  const company = await prisma.company.findUnique({ where: { id: user.companyId } });
+  const ctx = await getCompanyContext(user);
+
+  // Jika konsolidasi, pakai consolidated KPI
+  const kpi = ctx.isKonsolidasi
+    ? await getConsolidatedKpi(user, ctx.accessibleCompanyIds.filter((id) => id !== ctx.activeCompany.id))
+    : await getDashboardKpi(user);
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Selamat datang, {user.name}</h1>
+          <h1 className={styles.title}>
+            {ctx.isKonsolidasi ? "Dashboard Konsolidasi Group" : `Selamat datang, ${user.name}`}
+          </h1>
           <p className={styles.subtitle}>
-            {user.role} \u00b7 {company?.name ?? user.companyCode}
+            {ctx.isKonsolidasi
+              ? `Gabungan ${ctx.accessibleCompanyIds.length - 1} company \u00b7 ${user.role}`
+              : `${user.role} \u00b7 ${ctx.activeCompany.name}`}
           </p>
         </div>
         <div className={styles.meta}>
@@ -96,21 +106,62 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Top 5 Produk (Qty Bulan Ini)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {kpi.topProducts.length === 0 ? (
-              <div className={styles.emptyMini}>
-                <Icons.Package size={28} />
-                <p>Belum ada data produk</p>
+        {!ctx.isKonsolidasi && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Top 5 Produk (Qty Bulan Ini)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {kpi.topProducts.length === 0 ? (
+                <div className={styles.emptyMini}>
+                  <Icons.Package size={28} />
+                  <p>Belum ada data produk</p>
+                </div>
+              ) : (
+                <TopProductsChart data={kpi.topProducts} />
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {ctx.isKonsolidasi && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Per Company</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={styles.companyList}>
+                {ctx.accessibleCompanyIds
+                  .filter((id) => id !== ctx.activeCompany.id)
+                  .map(async (id) => {
+                    const c = await prisma.company.findUnique({ where: { id } });
+                    if (!c) return null;
+                    const sum = await prisma.financialTransaction.aggregate({
+                      _sum: { amount: true },
+                      where: {
+                        companyId: id,
+                        type: { in: ["PO", "FAKTUR"] },
+                        approvalStatus: "APPROVED",
+                        deletedAt: null,
+                        date: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+                      },
+                    });
+                    return (
+                      <div key={c.id} className={styles.companyItem}>
+                        <div>
+                          <div className={styles.companyName}>{c.name}</div>
+                          <div className={styles.companyCode}>{c.code}</div>
+                        </div>
+                        <div className={styles.companyAmount}>
+                          {formatIDR(Number(sum._sum.amount ?? 0))}
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
-            ) : (
-              <TopProductsChart data={kpi.topProducts} />
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </section>
     </div>
   );

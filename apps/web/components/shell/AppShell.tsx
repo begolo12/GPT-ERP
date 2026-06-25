@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
-import * as Icons from "lucide-react";
+import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import styles from "./AppShell.module.css";
@@ -16,22 +13,14 @@ interface AppShellProps {
     name: string;
     isGroup?: boolean;
   };
-  availableCompanies: { id: string; code: string; name: string }[];
+  availableCompanies: { id: string; code: string; name: string; isGroup?: boolean }[];
   user: { id: string; name: string; email: string; role: string; divisionCode: string | null };
+  isKonsolidasi: boolean;
 }
 
-export function AppShell({ children, currentCompany, availableCompanies, user }: AppShellProps) {
+export function AppShell({ children, currentCompany, availableCompanies, user, isKonsolidasi }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    startTransition(async () => {
-      await signOut({ redirect: false });
-      router.push("/login");
-    });
-  };
 
   return (
     <div className={styles.shell}>
@@ -42,7 +31,7 @@ export function AppShell({ children, currentCompany, availableCompanies, user }:
         aria-hidden
       />
       <div data-mobile-open={mobileOpen}>
-        <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+        <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} isKonsolidasi={isKonsolidasi} userRole={user.role} />
       </div>
       <div className={styles.main} data-sidebar-collapsed={collapsed}>
         <Topbar
@@ -50,10 +39,7 @@ export function AppShell({ children, currentCompany, availableCompanies, user }:
           availableCompanies={availableCompanies}
           user={user}
           onMobileMenuToggle={() => setMobileOpen(!mobileOpen)}
-          onCompanyChange={() => {
-            // Phase 8: real company switching
-            router.refresh();
-          }}
+          onCompanyChange={() => {}}
         />
         <main id="main-content" className={styles.content}>
           {children}
